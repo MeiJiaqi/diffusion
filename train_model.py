@@ -21,7 +21,7 @@ import utils
 from networks.unet import UNet
 from networks.diffusion import GaussianDiffusion
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '3'
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
 # net1 = UNet(in_channel=1, out_channel=1, inner_channel=32, norm_groups=16, channel_mults=(1, 2, 4, 8, 16),
 #                    attn_res=[],
@@ -190,7 +190,7 @@ linear_end=1e-2
 # learning_rate =1e-4
 learning_rate =5e-5      #550epoch后
 
-batch_size=2
+batch_size=50
 schedule_opt={'schedule':'linear','n_timestep':timesteps,'linear_start':linear_start,'linear_end':linear_end}
 gaussian_diffusion=GaussianDiffusion(model=net2,image_size=160,channels=1,loss_type='l1',conditional=True,schedule_opt=schedule_opt,device=device)
 optimizer1=torch.optim.Adam(net1.parameters(),lr=learning_rate)
