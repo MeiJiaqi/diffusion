@@ -210,7 +210,6 @@ if __name__ == '__main__':
     for epo in range(epoch,epochs):
 
         #train
-
         tra=datasets_npz.make_datasetS()
         print(f'epoch:{epo}')
         for ii, batch_sample in enumerate(tra):
@@ -242,7 +241,8 @@ if __name__ == '__main__':
                 loss1=criterion(output,oars)
                 loss2 = gaussian_diffusion.p_losses(x_start=rd, ptv=input,condition=feature)
                 loss_rec = gaussian_diffusion.p_losses(x_start=non_ptv_rd, ptv=input,condition=feature)  #修正损失，让模型更关注ptv外面区域
-                loss1.backward(retain_graph=True)
+                if epo <=500 :
+                    loss1.backward(retain_graph=True)
                 loss2.backward(retain_graph=True)
                 loss_rec.backward()
                 optimizer1.step()
@@ -252,7 +252,8 @@ if __name__ == '__main__':
                 tqdm.write(f'[train]: epoch:{epo},Iteration: {iter}, SegLoss: {loss1.item()}, DoseLoss: {loss2.item()}, RecLoss: {loss_rec.item()}')
                 # tqdm.write(f'[train]: epoch:{epo} Iteration: {iter}, DoseLoss: {loss2.item()} , RecLoss: {loss_rec.item()}')
         if epo%50 == 0:
-            utils.save_model(net1,epo,iter,1)
+            if epo <= 500:
+                utils.save_model(net1,epo,iter,1)
             utils.save_model(net2,epo,iter,2)
 
 
