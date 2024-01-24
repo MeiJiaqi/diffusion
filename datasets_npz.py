@@ -140,8 +140,8 @@ class MyDataset(Dataset):
 
 
 def make_datasetS():
-    # dir = r'/root/autodl-fs/rectum333_npz/train'
-    dir = r'/home/scusw1/mic/pycharm_project_433/data/rectum333_npz/train'   #实验室服务器
+    dir = r'/data/shuangjun.du/diffusion/data/rectum333_npz/train'   #杜双军服务器
+    # dir = r'/home/scusw1/mic/pycharm_project_433/data/rectum333_npz/train'   #实验室服务器
     #dir = r'D:\workfile\dlfile\数据集\rectum333_npz\test'
     batch_size = 1
     # Syn_train = TrainDataset(dir,"keshihuaForComparison_DVH")
@@ -152,9 +152,9 @@ def make_datasetS():
     return SynData_train
 
 def make_Valdataset():
-    # dir = r'/root/autodl-fs/rectum333_npz/test'
+    dir = r'/data/shuangjun.du/diffusion/data/rectum333_npz/test'   #杜双军服务器
     #dir = r'D:\workfile\dlfile\数据集\rectum333_npz\test'
-    dir = r'/home/scusw1/mic/pycharm_project_433/data/rectum333_npz/val'  # 实验室服务器
+    # dir = r'/home/scusw1/mic/pycharm_project_433/data/rectum333_npz/val'  # 实验室服务器
 
     batch_size = 1
     # Syn_train = TrainDataset(dir,"keshihuaForComparison_DVH")

@@ -118,7 +118,7 @@ def save_mha(data,name,savepath,voxel_spacing=(3, 3, 3)):
     image.SetSpacing(voxel_spacing)
     # Save the image with the specified name and path
     sitk.WriteImage(image, f"{savepath}/{name}.mha")
-    print("保存成功")
+    print("mha保存成功")
 
 def testimg():
     # 读取图像
@@ -164,10 +164,10 @@ def testimg():
     #     cv2.imwrite(img_path, (img * 255).astype(np.uint8))
     #     print("保存成功")
 def save_model(model,epoch,iter, index, best=False, max_saved=8):
-    #base_path = '/root/autodl-fs/'  # 服务器
-    base_path = '/home/scusw1/mic/pycharm_project_433/'  # 实验室服务器
+    base_path = '/data/shuangjun.du/diffusion/checkpoints/'  # 杜双军服务器
+    # base_path = '/home/scusw1/mic/pycharm_project_433/'  # 川大实验室服务器
     # base_path = 'D:/workfile/dlfile/2024mic/diffusion/'
-    save_dir = os.path.join(base_path, 'checkpoints/v8')
+    save_dir = os.path.join(base_path, 'v9')
     os.makedirs(save_dir, exist_ok=True)
     if best == True :
         file_path = os.path.join(save_dir, f'Unet{index}_Best_9999.pth')
@@ -198,22 +198,25 @@ def save_model(model,epoch,iter, index, best=False, max_saved=8):
 
 def load_model(model1,model2, epochnum):
 
-    # net1path = f'/root/autodl-fs/checkpoint/net1_checkpoint_iter_{iternum}.pth'    #服务器地址
-    # net2path = f'/root/autodl-fs/checkpoint/net2_checkpoint_iter_{iternum}.pth'
-    net1path = f'/home/scusw1/mic/pycharm_project_433/checkpoints/v8/Unet1_epoch_{epochnum}.pth'    #服务器地址
-    net2path = f'/home/scusw1/mic/pycharm_project_433/checkpoints/v8/Unet2_epoch_{epochnum}.pth'
+    net1path = f'/data/shuangjun.du/diffusion/checkpoint/v8/Unet1_epoch_{epochnum}.pth'    #杜双军服务器地址
+    # net2path = f'/data/shuangjun.du/diffusion/checkpoint/net2_checkpoint_iter_{iternum}.pth'
+
+    #net1path = f'/home/scusw1/mic/pycharm_project_433/checkpoints/v8/Unet1_epoch_{epochnum}.pth'    #川大服务器地址
+    # net2path = f'/home/scusw1/mic/pycharm_project_433/checkpoints/v8/Unet2_epoch_{epochnum}.pth'
 
     # net1path = f'D:\\workfile\\dlfile\\2024mic\\diffusion\\checkpoint\\Unet1_epoch_560.pth'
     # net2path = f'D:\\workfile\\dlfile\\2024mic\\diffusion\\checkpoint\\net2_epoch_{epochnum}.pth'
 
     checkpoint1 = torch.load(net1path)
-    checkpoint2 = torch.load(net2path)
+    # checkpoint2 = torch.load(net2path)
     # 加载模型和优化器的状态字典
     model1.load_state_dict(checkpoint1['model_state_dict'])
-    model2.load_state_dict(checkpoint2['model_state_dict'])
+    # model2.load_state_dict(checkpoint2['model_state_dict'])
     # 获取迭代次数和损失
-    iter_num = checkpoint2['iter']
-    epoch_num = checkpoint2['epoch']
+    # iter_num = checkpoint2['iter']
+    # epoch_num = checkpoint2['epoch']
+    iter_num = 0
+    epoch_num = 0
     print(f"Model loaded successfully from iteration {iter_num}")
 
     return model1, model2, iter_num,epoch_num
