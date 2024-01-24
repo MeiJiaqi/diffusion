@@ -21,7 +21,7 @@ import utils
 from networks.unet import UNet
 from networks.diffusion import GaussianDiffusion
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '3'
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
 # net1 = UNet(in_channel=1, out_channel=1, inner_channel=32, norm_groups=16, channel_mults=(1, 2, 4, 8, 16),
 #                    attn_res=[],
@@ -181,7 +181,7 @@ epoch=0
 # 使用DataParallel包装模型
 net1 = nn.DataParallel(net1)
 net2 = nn.DataParallel(net2)
-net1, net2, iter, epoch = utils.load_model(net1, net2, 500)
+# net1, net2, iter, epoch = utils.load_model(net1, net2, 500)
 net1=net1.to(device)
 net2=net2.to(device)
 epochs = 1500
@@ -191,10 +191,10 @@ linear_end=1e-2
 learning_rate =1e-4
 # learning_rate =5e-5      #550epoch后
 
-batch_size=35
+batch_size=50
 schedule_opt={'schedule':'linear','n_timestep':timesteps,'linear_start':linear_start,'linear_end':linear_end}
 gaussian_diffusion=GaussianDiffusion(model=net2,image_size=160,channels=1,loss_type='l1',conditional=True,schedule_opt=schedule_opt,device=device)
-# optimizer1=torch.optim.Adam(net1.parameters(),lr=learning_rate)
+optimizer1=torch.optim.Adam(net1.parameters(),lr=learning_rate)
 optimizer2=torch.optim.Adam(net2.parameters(),lr=learning_rate)
 criterion = torch.nn.BCEWithLogitsLoss()
 # criterion = torch.nn.CrossEntropyLoss()
@@ -204,7 +204,7 @@ best_val_dice=0  # 初始化为一个很大的值
 if __name__ == '__main__':
 
 
-    # utils.save_model(net1, 0, iter, 1)
+    utils.save_model(net1, 0, iter, 1)
     utils.save_model(net2, 0, iter, 2)
     net1.eval()
     for epo in range(epoch,epochs):
@@ -218,7 +218,7 @@ if __name__ == '__main__':
             print(f'{ii}，{name}')
             dataloader = DataLoader(dataset=datasets_npz.MyDataset(batch_sample), batch_size=batch_size, shuffle=True, drop_last=True)
             for i, (ct, ptv,rd,oars) in enumerate(tqdm(dataloader)):
-                # optimizer1.zero_grad()
+                optimizer1.zero_grad()
                 optimizer2.zero_grad()
                 # print(oars.shape)
                 ct=ct.to(device)
@@ -239,20 +239,20 @@ if __name__ == '__main__':
                 # print("Maximum value in output:", torch.max(output).item())
                 # pred_rd = net2(ct,feature)
                 # loss2 = l1_loss(pred_rd,rd)
-                # loss1=criterion(output,oars)
+                loss1=criterion(output,oars)
                 loss2 = gaussian_diffusion.p_losses(x_start=rd, ptv=input,condition=feature)
                 loss_rec = gaussian_diffusion.p_losses(x_start=non_ptv_rd, ptv=input,condition=feature)  #修正损失，让模型更关注ptv外面区域
-                # loss1.backward(retain_graph=True)
+                loss1.backward(retain_graph=True)
                 loss2.backward(retain_graph=True)
                 loss_rec.backward()
-                # optimizer1.step()
+                optimizer1.step()
                 optimizer2.step()
                 iter=iter+1
                 # 更新tqdm的描述字符串
-                # tqdm.write(f'[train]: epoch:{epo},Iteration: {iter}, SegLoss: {loss1.item()}, DoseLoss: {loss2.item()}')
-                tqdm.write(f'[train]: epoch:{epo} Iteration: {iter}, DoseLoss: {loss2.item()} , RecLoss: {loss_rec.item()}')
+                tqdm.write(f'[train]: epoch:{epo},Iteration: {iter}, SegLoss: {loss1.item()}, DoseLoss: {loss2.item()}, RecLoss: {loss_rec.item()}')
+                # tqdm.write(f'[train]: epoch:{epo} Iteration: {iter}, DoseLoss: {loss2.item()} , RecLoss: {loss_rec.item()}')
         if epo%50 == 0:
-            # utils.save_model(net1,epo,iter,1)
+            utils.save_model(net1,epo,iter,1)
             utils.save_model(net2,epo,iter,2)
 
 
