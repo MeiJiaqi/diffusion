@@ -111,7 +111,7 @@ net1 = nn.DataParallel(net1)
 net2 = nn.DataParallel(net2)
 #net1=net1.to(device)
 # net1=0
-net1, net2, iter, epoch = utils.load_model(net1, net2, 600)
+net1, net2, iter, epoch = utils.load_model(net1, net2, 400)
 net2=net2.to(device)
 net1=net1.to(device)
 #net2=net2.to(device)
@@ -132,13 +132,13 @@ if __name__ == '__main__':
     # pre_path = r"D:\workfile\dlfile\2024mic\diffusion\sample"
     # save_path = r"D:\workfile\dlfile\2024mic\diffusion\sample\mha-mul-unet-200"
     # data_path = r"D:\workfile\dlfile\2024mic\diffusion\data\rectum333_npz\test"
-    # pre_path = r'/home/scusw1/mic/pycharm_project_433/sample'
-    # save_path = r'/home/scusw1/mic/pycharm_project_433/sample/mha-mul-diff-600'
-    # data_path = r'/home/scusw1/mic/pycharm_project_433/data/rectum333_npz/test'
+    pre_path = r'/home/scusw1/mic/pycharm_project_433/sample'
+    save_path = r'/home/scusw1/mic/pycharm_project_433/sample/mha-mul-diff-v9-400'
+    data_path = r'/home/scusw1/mic/pycharm_project_433/data/rectum333_npz/test'
 
-    pre_path = r'/data/shuangjun.du/diffusion/sample'
-    save_path = r'/data/shuangjun.du/diffusion/sample/mha-mul-diff-600'
-    data_path = r'/data/shuangjun.du/diffusion/data/rectum333_npz/test'
+    # pre_path = r'/data/shuangjun.du/diffusion/sample'
+    # save_path = r'/data/shuangjun.du/diffusion/sample/mha-mul-diff-600'
+    # data_path = r'/data/shuangjun.du/diffusion/data/rectum333_npz/test'
 
 
     if not os.path.exists(save_path):
