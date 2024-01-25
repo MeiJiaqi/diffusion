@@ -198,8 +198,8 @@ def save_model(model,epoch,iter, index, best=False, max_saved=8):
 
 def load_model(model1,model2, epochnum):
 
-    net1path = f'/data/shuangjun.du/diffusion/checkpoint/v8/Unet1_epoch_{epochnum}.pth'    #杜双军服务器地址
-    # net2path = f'/data/shuangjun.du/diffusion/checkpoint/net2_checkpoint_iter_{iternum}.pth'
+    net1path = f'/data/shuangjun.du/diffusion/checkpoint/v8/Unet1_epoch_500.pth'    #杜双军服务器地址
+    net2path = f'/data/shuangjun.du/diffusion/checkpoint/v8/Unet2_epoch_{epochnum}.pth'
 
     #net1path = f'/home/scusw1/mic/pycharm_project_433/checkpoints/v8/Unet1_epoch_{epochnum}.pth'    #川大服务器地址
     # net2path = f'/home/scusw1/mic/pycharm_project_433/checkpoints/v8/Unet2_epoch_{epochnum}.pth'
@@ -208,15 +208,14 @@ def load_model(model1,model2, epochnum):
     # net2path = f'D:\\workfile\\dlfile\\2024mic\\diffusion\\checkpoint\\net2_epoch_{epochnum}.pth'
 
     checkpoint1 = torch.load(net1path)
-    # checkpoint2 = torch.load(net2path)
+    checkpoint2 = torch.load(net2path)
     # 加载模型和优化器的状态字典
     model1.load_state_dict(checkpoint1['model_state_dict'])
-    # model2.load_state_dict(checkpoint2['model_state_dict'])
+    model2.load_state_dict(checkpoint2['model_state_dict'])
     # 获取迭代次数和损失
-    # iter_num = checkpoint2['iter']
-    # epoch_num = checkpoint2['epoch']
-    iter_num = 0
-    epoch_num = 0
+    iter_num = checkpoint2['iter']
+    epoch_num = checkpoint2['epoch']
+
     print(f"Model loaded successfully from iteration {iter_num}")
 
     return model1, model2, iter_num,epoch_num
