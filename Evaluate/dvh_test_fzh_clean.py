@@ -18,7 +18,7 @@ import utils
 
 
 # os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
-os.environ["CUDA_VISIBLE_DEVICES"] = '3'
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
 def get_dose_diff(prediction,target,roi):
 
@@ -132,9 +132,15 @@ if __name__ == '__main__':
     # pre_path = r"D:\workfile\dlfile\2024mic\diffusion\sample"
     # save_path = r"D:\workfile\dlfile\2024mic\diffusion\sample\mha-mul-unet-200"
     # data_path = r"D:\workfile\dlfile\2024mic\diffusion\data\rectum333_npz\test"
-    pre_path = r'/home/scusw1/mic/pycharm_project_433/sample'
-    save_path = r'/home/scusw1/mic/pycharm_project_433/sample/mha-mul-diff-600'
-    data_path = r'/home/scusw1/mic/pycharm_project_433/data/rectum333_npz/test'
+    # pre_path = r'/home/scusw1/mic/pycharm_project_433/sample'
+    # save_path = r'/home/scusw1/mic/pycharm_project_433/sample/mha-mul-diff-600'
+    # data_path = r'/home/scusw1/mic/pycharm_project_433/data/rectum333_npz/test'
+
+    pre_path = r'/data/shuangjun.du/diffusion/sample'
+    save_path = r'/data/shuangjun.du/diffusion/sample/mha-mul-diff-600'
+    data_path = r'/data/shuangjun.du/diffusion/data/rectum333_npz/test'
+
+
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     for root,_,fnames in sorted(os.walk(data_path)):
@@ -210,11 +216,11 @@ if __name__ == '__main__':
 
             #pred_rd = net2(current_batch,feature)
             pred_rd = gaussian_diffusion.p_sample_loop(current_batch,ptv=input, continous=False,condition=feature)
-            print(pred_rd.shape)
+            # print(pred_rd.shape)
             pred_rd=((pred_rd + 1) / 2).squeeze(dim=1).cpu().detach().numpy()
             predose_list.append(pred_rd)
-            print("pred_rd 的最大值:", np.max(pred_rd))
-            print("pred_rd 的最小值:", np.min(pred_rd))
+            # print("pred_rd 的最大值:", np.max(pred_rd))
+            # print("pred_rd 的最小值:", np.min(pred_rd))
         predose = np.concatenate(predose_list, axis=0)
         print("合并后的 predose 形状:", predose.shape)
         utils.save_mha(predose,name,save_path)

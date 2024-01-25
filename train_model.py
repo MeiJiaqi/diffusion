@@ -206,7 +206,6 @@ if __name__ == '__main__':
 
     utils.save_model(net1, 0, iter, 1)
     utils.save_model(net2, 0, iter, 2)
-    net1.eval()
     for epo in range(epoch,epochs):
 
         #train
