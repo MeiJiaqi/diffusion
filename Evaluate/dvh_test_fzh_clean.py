@@ -18,7 +18,7 @@ import utils
 
 
 # os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
-os.environ["CUDA_VISIBLE_DEVICES"] = '0'
+os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3'
 
 def get_dose_diff(prediction,target,roi):
 
@@ -111,7 +111,7 @@ net1 = nn.DataParallel(net1)
 net2 = nn.DataParallel(net2)
 #net1=net1.to(device)
 # net1=0
-net1, net2, iter, epoch = utils.load_model(net1, net2, 400)
+net1, net2, iter, epoch = utils.load_model(net1, net2, 1150)
 net2=net2.to(device)
 net1=net1.to(device)
 #net2=net2.to(device)
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     # save_path = r"D:\workfile\dlfile\2024mic\diffusion\sample\mha-mul-unet-200"
     # data_path = r"D:\workfile\dlfile\2024mic\diffusion\data\rectum333_npz\test"
     pre_path = r'/home/scusw1/mic/pycharm_project_433/sample'
-    save_path = r'/home/scusw1/mic/pycharm_project_433/sample/mha-mul-diff-v9-400'
+    save_path = r'/home/scusw1/mic/pycharm_project_433/sample/mha-mul-diff-v10-1000'
     data_path = r'/home/scusw1/mic/pycharm_project_433/data/rectum333_npz/test'
 
     # pre_path = r'/data/shuangjun.du/diffusion/sample'
@@ -181,7 +181,7 @@ if __name__ == '__main__':
         # # 打印 ptv 的最大值和最小值
         # print("rd 的最大值:", np.max(rd))
         # print("rd 的最小值:", np.min(rd))
-        batch_size = 15  # 你可以根据需要设置 batch size
+        batch_size = 40  # 你可以根据需要设置 batch size
         total_nums, height, width = ct.shape
         # 将 ct 转换为 PyTorch 张量
         ct_tensor = torch.from_numpy(ct).float().to(device)

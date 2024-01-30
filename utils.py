@@ -167,7 +167,7 @@ def save_model(model,epoch,iter, index, best=False, max_saved=8):
     base_path = '/data/shuangjun.du/diffusion/checkpoints/'  # 杜双军服务器
     # base_path = '/home/scusw1/mic/pycharm_project_433/'  # 川大实验室服务器
     # base_path = 'D:/workfile/dlfile/2024mic/diffusion/'
-    save_dir = os.path.join(base_path, 'v10')
+    save_dir = os.path.join(base_path, 'v11')
     os.makedirs(save_dir, exist_ok=True)
     if best == True :
         file_path = os.path.join(save_dir, f'Unet{index}_Best_9999.pth')
@@ -198,10 +198,10 @@ def save_model(model,epoch,iter, index, best=False, max_saved=8):
 
 def load_model(model1,model2, epochnum):
 
-    net1path = f'/data/shuangjun.du/diffusion/checkpoint/v9/Unet1_epoch_500.pth'    #杜双军服务器地址
+    # net1path = f'/data/shuangjun.du/diffusion/checkpoint/v9/Unet1_epoch_{epochnum}.pth'    #杜双军服务器地址
     # net2path = f'/data/shuangjun.du/diffusion/checkpoint/v8/Unet2_epoch_{epochnum}.pth'
 
-    # net1path = f'/home/scusw1/mic/pycharm_project_433/checkpoints/v9/Unet1_epoch_{epochnum}.pth'    #川大服务器地址
+    net1path = f'/home/scusw1/mic/pycharm_project_433/checkpoints/v9/Unet1_epoch_400.pth'    #川大服务器地址
     # net2path = f'/home/scusw1/mic/pycharm_project_433/checkpoints/v9/Unet2_epoch_{epochnum}.pth'
 
     # net1path = f'D:\\workfile\\dlfile\\2024mic\\diffusion\\checkpoint\\Unet1_epoch_560.pth'

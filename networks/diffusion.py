@@ -274,7 +274,7 @@ class GaussianDiffusion(nn.Module):
                         t, x_start.shape) * noise
         )
 
-    def p_losses(self, x_start,non_ptv,ptv,noise=None,condition=None):
+    def p_losses(self, x_start,ptv,noise=None,condition=None):
         [b, c, h, w] = x_start.shape
         t = torch.randint(0, self.num_timesteps, (b,),
                           device=x_start.device).long()
@@ -283,20 +283,20 @@ class GaussianDiffusion(nn.Module):
         x_noisy = self.q_sample(x_start=x_start, t=t, noise=noise)
         x_noisy = torch.cat([x_noisy,ptv],dim=1)
 
-        n_x_noisy = self.q_sample(x_start=non_ptv, t=t, noise=noise)
-        n_x_noisy = torch.cat([n_x_noisy, ptv], dim=1)
+        # n_x_noisy = self.q_sample(x_start=non_ptv, t=t, noise=noise)
+        # n_x_noisy = torch.cat([n_x_noisy, ptv], dim=1)
 
         if not self.conditional:
             predicted_noise,_ = self.model(x_noisy, [],t)
-            predicted_noise_n, _ = self.model(n_x_noisy, [], t)
+            # predicted_noise_n, _ = self.model(n_x_noisy, [], t)
         else:
             predicted_noise = self.model(x_noisy,condition,t)
-            predicted_noise_n = self.model(n_x_noisy, condition, t)
+            # predicted_noise_n = self.model(n_x_noisy, condition, t)
 
         #print(predicted_noise.shape)
         loss = self.loss_func(noise, predicted_noise)
-        loss2=self.loss_func(noise,predicted_noise_n)
-        return loss,loss2
+        # loss2=self.loss_func(noise,predicted_noise_n)
+        return loss
 
     def forward(self, x, *args, **kwargs):
         return self.p_losses(x, *args, **kwargs)

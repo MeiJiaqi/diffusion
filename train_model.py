@@ -21,7 +21,7 @@ import utils
 from networks.unet import UNet
 from networks.diffusion import GaussianDiffusion
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '0'
+os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3'
 
 # net1 = UNet(in_channel=1, out_channel=1, inner_channel=32, norm_groups=16, channel_mults=(1, 2, 4, 8, 16),
 #                    attn_res=[],
@@ -181,7 +181,7 @@ epoch=0
 # 使用DataParallel包装模型
 net1 = nn.DataParallel(net1)
 net2 = nn.DataParallel(net2)
-net1, net2, iter, epoch = utils.load_model(net1, net2, 450)
+net1, net2, iter, epoch = utils.load_model(net1, net2, 400)
 net1=net1.to(device)
 net2=net2.to(device)
 epochs = 1500
@@ -191,7 +191,7 @@ linear_end=1e-2
 learning_rate =1e-4
 # learning_rate =5e-5      #550epoch后
 
-batch_size=50
+batch_size=40
 schedule_opt={'schedule':'linear','n_timestep':timesteps,'linear_start':linear_start,'linear_end':linear_end}
 gaussian_diffusion=GaussianDiffusion(model=net2,image_size=160,channels=1,loss_type='l1',conditional=True,schedule_opt=schedule_opt,device=device)
 # optimizer1=torch.optim.Adam(net1.parameters(),lr=learning_rate)
@@ -228,7 +228,7 @@ if __name__ == '__main__':
                 # print(ct.shape)
                 # print("Minimum value in ptv:", torch.min(oars).item())
                 # print("Maximum value in ptv:", torch.max(oars).item())
-                non_ptv_rd = rd * (1 - ptv)
+                # non_ptv_rd = rd * (1 - ptv)
                 # print(non_ptv_rd.shape)
                 # print("Minimum value in non_ptv_rd:", torch.min(non_ptv_rd).item())
                 # print("Maximum value in non_ptv_rd:", torch.max(non_ptv_rd).item())
@@ -238,18 +238,19 @@ if __name__ == '__main__':
                 # pred_rd = net2(ct,feature)
                 # loss2 = l1_loss(pred_rd,rd)
                 # loss1=criterion(output,oars)
-                loss2,loss_rec = gaussian_diffusion.p_losses(x_start=rd,non_ptv=non_ptv_rd, ptv=input,condition=feature)
+                loss2 = gaussian_diffusion.p_losses(x_start=rd, ptv=input,condition=feature)
                 # loss_rec = gaussian_diffusion.p_losses(x_start=non_ptv_rd, ptv=input,condition=feature)  #修正损失，让模型更关注ptv外面区域
                 # if epo <=500 :
                 #     loss1.backward(retain_graph=True)
-                loss2.backward(retain_graph=True)
-                loss_rec.backward()
+                loss2.backward()
+                # loss_rec.backward()
                 # optimizer1.step()
                 optimizer2.step()
                 iter=iter+1
                 # 更新tqdm的描述字符串
                 # tqdm.write(f'[train]: epoch:{epo},Iteration: {iter}, SegLoss: {loss1.item()}, DoseLoss: {loss2.item()}, RecLoss: {loss_rec.item()}')
-                tqdm.write(f'[train]: epoch:{epo} Iteration: {iter}, DoseLoss: {loss2.item()} , RecLoss: {loss_rec.item()}')
+                # tqdm.write(f'[train]: epoch:{epo} Iteration: {iter}, DoseLoss: {loss2.item()} , RecLoss: {loss_rec.item()}')
+                tqdm.write(f'[train]: epoch:{epo} Iteration: {iter}, DoseLoss: {loss2.item()} ')
         if epo%50 == 0:
             # if epo <= 500:
             #     utils.save_model(net1,epo,iter,1)
