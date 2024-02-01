@@ -21,7 +21,7 @@ import utils
 from networks.unet import UNet
 from networks.diffusion import GaussianDiffusion
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3'
+os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 
 # net1 = UNet(in_channel=1, out_channel=1, inner_channel=32, norm_groups=16, channel_mults=(1, 2, 4, 8, 16),
 #                    attn_res=[],
@@ -154,12 +154,12 @@ os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3'
 #             #utils.save_model(net1,epo,iter,1)
 #             utils.save_model(net2,epo,iter,2)
 
-net1 = UNet(in_channel=2, out_channel=4, inner_channel=32, norm_groups=16, channel_mults=(1, 2, 4, 8, 16),
+net1 = UNet(in_channel=1, out_channel=5, inner_channel=32, norm_groups=16, channel_mults=(1, 2, 4, 8, 16),
                    attn_res=[],
-                   res_blocks=1, dropout=0, with_time_emb=False, with_feature_emb=False,image_size=160)
+                   res_blocks=2, dropout=0, with_time_emb=False, with_feature_emb=False,image_size=160)
 
 
-net2 = UNet(in_channel=3, out_channel=1, inner_channel=32, norm_groups=16, channel_mults=(1, 2, 4, 8, 16),
+net2 = UNet(in_channel=2, out_channel=1, inner_channel=32, norm_groups=16, channel_mults=(1, 2, 4, 8, 16),
                    attn_res=[],
                    res_blocks=1, dropout=0, with_time_emb=True, with_feature_emb=True,image_size=160)
 
@@ -181,7 +181,7 @@ epoch=0
 # 使用DataParallel包装模型
 net1 = nn.DataParallel(net1)
 net2 = nn.DataParallel(net2)
-net1, net2, iter, epoch = utils.load_model(net1, net2, 400)
+# net1, net2, iter, epoch = utils.load_model(net1, net2, 750)
 net1=net1.to(device)
 net2=net2.to(device)
 epochs = 1500
@@ -189,22 +189,25 @@ timesteps=1000
 linear_start=1e-4
 linear_end=1e-2
 learning_rate =1e-4
-# learning_rate =5e-5      #550epoch后
+# learning_rate =5e-5      #500epoch后
 
-batch_size=40
+batch_size=80
 schedule_opt={'schedule':'linear','n_timestep':timesteps,'linear_start':linear_start,'linear_end':linear_end}
 gaussian_diffusion=GaussianDiffusion(model=net2,image_size=160,channels=1,loss_type='l1',conditional=True,schedule_opt=schedule_opt,device=device)
-# optimizer1=torch.optim.Adam(net1.parameters(),lr=learning_rate)
+optimizer1=torch.optim.Adam(net1.parameters(),lr=learning_rate)
 optimizer2=torch.optim.Adam(net2.parameters(),lr=learning_rate)
 criterion = torch.nn.BCEWithLogitsLoss()
 # criterion = torch.nn.CrossEntropyLoss()
 l1_loss=nn.L1Loss().to(device)
 best_val_dice=0  # 初始化为一个很大的值
 
+# 是否已经修改过学习率的标志
+lr_changed = False
+
 if __name__ == '__main__':
 
 
-    # utils.save_model(net1, 0, iter, 1)
+    utils.save_model(net1, 0, iter, 1)
     utils.save_model(net2, 0, iter, 2)
     for epo in range(epoch,epochs):
 
@@ -216,7 +219,7 @@ if __name__ == '__main__':
             print(f'{ii}，{name}')
             dataloader = DataLoader(dataset=datasets_npz.MyDataset(batch_sample), batch_size=batch_size, shuffle=True, drop_last=True)
             for i, (ct, ptv,rd,oars) in enumerate(tqdm(dataloader)):
-                # optimizer1.zero_grad()
+                optimizer1.zero_grad()
                 optimizer2.zero_grad()
                 # print(oars.shape)
                 ct=ct.to(device)
@@ -232,29 +235,38 @@ if __name__ == '__main__':
                 # print(non_ptv_rd.shape)
                 # print("Minimum value in non_ptv_rd:", torch.min(non_ptv_rd).item())
                 # print("Maximum value in non_ptv_rd:", torch.max(non_ptv_rd).item())
-                output,feature = net1(input)
+                output,feature = net1(ct)
                 # print("Minimum value in output:", torch.min(output).item())
                 # print("Maximum value in output:", torch.max(output).item())
                 # pred_rd = net2(ct,feature)
                 # loss2 = l1_loss(pred_rd,rd)
-                # loss1=criterion(output,oars)
-                loss2 = gaussian_diffusion.p_losses(x_start=rd, ptv=input,condition=feature)
+                oars = torch.cat([oars,ptv],dim=1)
+                loss1=criterion(output,oars)
+                loss2 = gaussian_diffusion.p_losses(x_start=rd, ptv=ct,condition=feature)
                 # loss_rec = gaussian_diffusion.p_losses(x_start=non_ptv_rd, ptv=input,condition=feature)  #修正损失，让模型更关注ptv外面区域
-                # if epo <=500 :
-                #     loss1.backward(retain_graph=True)
+                if epo <=500 :
+                    loss1.backward(retain_graph=True)
                 loss2.backward()
                 # loss_rec.backward()
-                # optimizer1.step()
+                optimizer1.step()
                 optimizer2.step()
                 iter=iter+1
                 # 更新tqdm的描述字符串
-                # tqdm.write(f'[train]: epoch:{epo},Iteration: {iter}, SegLoss: {loss1.item()}, DoseLoss: {loss2.item()}, RecLoss: {loss_rec.item()}')
+                tqdm.write(f'[train]: epoch:{epo},Iteration: {iter}, SegLoss: {loss1.item()}, DoseLoss: {loss2.item()}')
                 # tqdm.write(f'[train]: epoch:{epo} Iteration: {iter}, DoseLoss: {loss2.item()} , RecLoss: {loss_rec.item()}')
-                tqdm.write(f'[train]: epoch:{epo} Iteration: {iter}, DoseLoss: {loss2.item()} ')
+                # tqdm.write(f'[train]: epoch:{epo} Iteration: {iter}, DoseLoss: {loss2.item()} ')
         if epo%50 == 0:
-            # if epo <= 500:
-            #     utils.save_model(net1,epo,iter,1)
+            if epo <= 500:
+                utils.save_model(net1,epo,iter,1)
             utils.save_model(net2,epo,iter,2)
+        # 根据条件改变学习率
+        if not lr_changed and epoch >= 500:
+            new_learning_rate = learning_rate * 0.5
+            for param_group in optimizer1.param_groups:
+                param_group['lr'] = new_learning_rate
+            for param_group in optimizer2.param_groups:
+                param_group['lr'] = new_learning_rate
+            lr_changed = True  # 修改学习率后设置标志
 
 
 

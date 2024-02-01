@@ -167,7 +167,7 @@ def save_model(model,epoch,iter, index, best=False, max_saved=8):
     base_path = '/data/shuangjun.du/diffusion/checkpoints/'  # 杜双军服务器
     # base_path = '/home/scusw1/mic/pycharm_project_433/'  # 川大实验室服务器
     # base_path = 'D:/workfile/dlfile/2024mic/diffusion/'
-    save_dir = os.path.join(base_path, 'v11')
+    save_dir = os.path.join(base_path, 'v12')
     os.makedirs(save_dir, exist_ok=True)
     if best == True :
         file_path = os.path.join(save_dir, f'Unet{index}_Best_9999.pth')
@@ -198,25 +198,25 @@ def save_model(model,epoch,iter, index, best=False, max_saved=8):
 
 def load_model(model1,model2, epochnum):
 
-    # net1path = f'/data/shuangjun.du/diffusion/checkpoint/v9/Unet1_epoch_{epochnum}.pth'    #杜双军服务器地址
-    # net2path = f'/data/shuangjun.du/diffusion/checkpoint/v8/Unet2_epoch_{epochnum}.pth'
+    net1path = f'/data/shuangjun.du/diffusion/checkpoints/v9/Unet1_epoch_400.pth'    #杜双军服务器地址
+    net2path = f'/data/shuangjun.du/diffusion/checkpoints/v11/Unet2_epoch_{epochnum}.pth'
 
-    net1path = f'/home/scusw1/mic/pycharm_project_433/checkpoints/v9/Unet1_epoch_400.pth'    #川大服务器地址
-    # net2path = f'/home/scusw1/mic/pycharm_project_433/checkpoints/v9/Unet2_epoch_{epochnum}.pth'
+    # net1path = f'/home/scusw1/mic//pycharm_project_433/checkpoints/v9/Unet1_epoch_400.pth'    #川大服务器地址
+    # net2path = f'/home/scusw1/mic/pycharm_project_433/checkpoints/v11/Unet2_epoch_{epochnum}.pth'
 
     # net1path = f'D:\\workfile\\dlfile\\2024mic\\diffusion\\checkpoint\\Unet1_epoch_560.pth'
     # net2path = f'D:\\workfile\\dlfile\\2024mic\\diffusion\\checkpoint\\net2_epoch_{epochnum}.pth'
 
     checkpoint1 = torch.load(net1path)
-    # checkpoint2 = torch.load(net2path)
+    checkpoint2 = torch.load(net2path)
     # 加载模型和优化器的状态字典
     model1.load_state_dict(checkpoint1['model_state_dict'])
-    # model2.load_state_dict(checkpoint2['model_state_dict'])
+    model2.load_state_dict(checkpoint2['model_state_dict'])
     # 获取迭代次数和损失
-    # iter_num = checkpoint2['iter']
-    # epoch_num = checkpoint2['epoch']
-    iter_num = 0
-    epoch_num = 0
+    iter_num = checkpoint2['iter']
+    epoch_num = checkpoint2['epoch']
+    # iter_num = 0
+    # epoch_num = 0
 
     print(f"Model loaded successfully from iteration {iter_num}")
 
